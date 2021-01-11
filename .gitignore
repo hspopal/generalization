@@ -1,4 +1,3 @@
-.gitignore
 archive
 __pycache__
 .DS_Store
