@@ -28,6 +28,7 @@ GENERALIZATION/ <br>
    * The individual_items directory has subdirectories with category names. Then inside each category subdirectory, are pictures of the respective items, which every color iteration in the format {item}_{color}.png
 
 * scripts
-This directory is this GitHub repo. 
+   * This directory is this GitHub repo. 
 * subject_data
-This directory is where all of the subject data will be outputted. There is also a subdirectory for subject data from development testing (so you can output data while you are testing your stimuli and any coding changes. 
+   * This directory is where all of the subject data will be outputted
+   * There is also a subdirectory for subject data from development testing (so you can output data while you are testing your stimuli and any coding changes. 
