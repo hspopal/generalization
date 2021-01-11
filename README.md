@@ -22,11 +22,10 @@ GENERALIZATION/ <br>
     └── dev_testing <br>
 
 * Block_1 and Block_2
-Contains all of the stimuli for each respective block.
-Inside the "characters" subdirectory is images of each character with the 
-syntax of each file being {character_name}_{category}.png
-Inside of the "encoding" subdirectory is images of all the scenes for all 
-the characters with the syntax of each file being {category}_encoding_{#}.png
+   * Contains all of the stimuli for each respective block.
+   * Inside the "characters" subdirectory is images of each character with the syntax of each file being {character_name}_{category}.png
+   * Inside of the "encoding" subdirectory is images of all the scenes for all the characters with the syntax of each file being {category}_encoding_{#}.png
+   * The individual_items directory has subdirectories with category names. Then inside each category subdirectory, are pictures of the respective items, which every color iteration in the format {item}_{color}.png
 
 * scripts
 This directory is this GitHub repo. 
