@@ -4,6 +4,11 @@
 Created on Tue Dec 11 14:57:44 2018
 
 @author: Zoe Ngo and Haroon Popal
+
+This version implements a randomization between the context binding and 
+item recognition/pattern separation sections. Due to the inherent nature of 
+this task, the other sections (encoding and generalization), could not also 
+be randomized. 
 """
 
 import psychopy
@@ -20,7 +25,7 @@ psychopy.useVersion('3.0.0')
 
 
 # Set stimulus timing (in seconds) and trial data
-beta = 0
+beta = 1
 if beta == 0:
     time_intro = 3
     time_encod = 5
@@ -362,102 +367,102 @@ for character in character_list:
 
 ##########################################################################
 ### Context Binding
-
-context_bind_items = []
-encoding_pres_items = subject_stim[subject_stim['Part']=='encoding']
-
-temp_instr = visual.TextStim(win, instr[16], color='black', pos=[0,0])
-temp_instr.draw()
-win.update()
-event.waitKeys(keyList=['space'])
-win.flip()
-
-random.shuffle(character_list)
-for character in character_list:
-    if event.getKeys(['escape']):
-        win.close()
-        core.quit()
-    subject_stim['Scene'].iloc[n].split('_')[0]
-    items_already_pres = subject_stim['Item'].tolist() + subject_stim['Lure_1'].tolist() + subject_stim['Lure_2'].tolist()
+def context_binding(self):
+    context_bind_items = []
+    encoding_pres_items = subject_stim[subject_stim['Part']=='encoding']
     
-    # Get two random category lures
-    cb_items = random.sample(encoding_pres_items[encoding_pres_items['Character']==character]['Item'].tolist(),3)
-    # Get lure items that were not presented during encoding and set random color
-    scene_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[0]]['Scene'].iloc[0]
-    target_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[0]][
-                                    ['Item','Color']].iloc[0].str.cat(sep='_')
-    lure1_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[1]][
-                                    ['Item','Color']].iloc[0].str.cat(sep='_')
-    lure2_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[2]][
-                                    ['Item','Color']].iloc[0].str.cat(sep='_')
-    context_bind_items = context_bind_items + [target_cb.rsplit('_',1)[0], 
-                                               lure1_cb.rsplit('_',1)[0], 
-                                               lure2_cb.rsplit('_',1)[0]]
-    subject_stim.loc[count,'Part'] = 'context_binding'
-    subject_stim.loc[count,'Character'] = character
-    subject_stim.loc[count,'Scene'] = scene_cb
-    subject_stim.loc[count,'Item'] = target_cb.rsplit('_',1)[0]
-    subject_stim.loc[count,'Color'] = target_cb.rsplit('_',1)[1]
-    subject_stim.loc[count,'Lure_1'] = lure1_cb
-    subject_stim.loc[count,'Lure_2'] = lure2_cb
-    
-    
-    # Present stimuli
-    scene_stim = Image.open(scene_dir+scene_cb+'.png')
-    lure1_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(lure1_cb+'.png')][0])
-    lure2_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(lure2_cb+'.png')][0])
-    target_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(target_cb+'.png')][0])
-    char_stim.thumbnail(item_size, Image.ANTIALIAS)
-    lure1_stim.thumbnail(item_size, Image.ANTIALIAS)
-    lure2_stim.thumbnail(item_size, Image.ANTIALIAS)
-    target_stim.thumbnail(item_size, Image.ANTIALIAS)
-    stim_pos = [[-0.5,-0.6], [0,-0.6], [0.5,-0.6]]
-    random.shuffle(stim_pos)
-    scene_pres = visual.ImageStim(win, scene_stim, pos=[0,0.35])
-    lure1_pres = visual.ImageStim(win, lure1_stim, pos=stim_pos[0])
-    lure2_pres = visual.ImageStim(win, lure2_stim, pos=stim_pos[1])
-    target_pres = visual.ImageStim(win, target_stim, pos=stim_pos[2])
-    
-    scene_pres.draw()
-    lure1_pres.draw()
-    lure2_pres.draw()
-    target_pres.draw()
+    temp_instr = visual.TextStim(win, instr[16], color='black', pos=[0,0])
+    temp_instr.draw()
     win.update()
-    timer.reset()
-    
-    # Record response and give feedback
-    while True:
-        if mouse.isPressedIn(target_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = target_cb
-            break
-        elif mouse.isPressedIn(lure1_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = lure1_cb
-            break
-        elif mouse.isPressedIn(lure2_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = lure2_cb
-            break
-    win.update()
+    event.waitKeys(keyList=['space'])
     win.flip()
-    fix_pres = scene_pres = visual.ImageStim(win, fixation, pos=[0,0])
-    fix_pres.draw()
-    win.update()
-    core.wait(time_fixcr)
-    win.flip()
-    subject_stim.to_csv(save_subj_file_name)
-    count = count + 1
+    
+    random.shuffle(character_list)
+    for character in character_list:
+        if event.getKeys(['escape']):
+            win.close()
+            core.quit()
+        subject_stim['Scene'].iloc[n].split('_')[0]
+        items_already_pres = subject_stim['Item'].tolist() + subject_stim['Lure_1'].tolist() + subject_stim['Lure_2'].tolist()
+        
+        # Get two random category lures
+        cb_items = random.sample(encoding_pres_items[encoding_pres_items['Character']==character]['Item'].tolist(),3)
+        # Get lure items that were not presented during encoding and set random color
+        scene_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[0]]['Scene'].iloc[0]
+        target_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[0]][
+                                        ['Item','Color']].iloc[0].str.cat(sep='_')
+        lure1_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[1]][
+                                        ['Item','Color']].iloc[0].str.cat(sep='_')
+        lure2_cb = encoding_pres_items[encoding_pres_items['Item']==cb_items[2]][
+                                        ['Item','Color']].iloc[0].str.cat(sep='_')
+        context_bind_items = context_bind_items + [target_cb.rsplit('_',1)[0], 
+                                                   lure1_cb.rsplit('_',1)[0], 
+                                                   lure2_cb.rsplit('_',1)[0]]
+        subject_stim.loc[count,'Part'] = 'context_binding'
+        subject_stim.loc[count,'Character'] = character
+        subject_stim.loc[count,'Scene'] = scene_cb
+        subject_stim.loc[count,'Item'] = target_cb.rsplit('_',1)[0]
+        subject_stim.loc[count,'Color'] = target_cb.rsplit('_',1)[1]
+        subject_stim.loc[count,'Lure_1'] = lure1_cb
+        subject_stim.loc[count,'Lure_2'] = lure2_cb
+        
+        
+        # Present stimuli
+        scene_stim = Image.open(scene_dir+scene_cb+'.png')
+        lure1_stim = Image.open(item_dir+character+'/'+ 
+                               [i for i in os.listdir(item_dir+character+'/')
+                               if i.startswith(lure1_cb+'.png')][0])
+        lure2_stim = Image.open(item_dir+character+'/'+ 
+                               [i for i in os.listdir(item_dir+character+'/')
+                               if i.startswith(lure2_cb+'.png')][0])
+        target_stim = Image.open(item_dir+character+'/'+ 
+                               [i for i in os.listdir(item_dir+character+'/')
+                               if i.startswith(target_cb+'.png')][0])
+        char_stim.thumbnail(item_size, Image.ANTIALIAS)
+        lure1_stim.thumbnail(item_size, Image.ANTIALIAS)
+        lure2_stim.thumbnail(item_size, Image.ANTIALIAS)
+        target_stim.thumbnail(item_size, Image.ANTIALIAS)
+        stim_pos = [[-0.5,-0.6], [0,-0.6], [0.5,-0.6]]
+        random.shuffle(stim_pos)
+        scene_pres = visual.ImageStim(win, scene_stim, pos=[0,0.35])
+        lure1_pres = visual.ImageStim(win, lure1_stim, pos=stim_pos[0])
+        lure2_pres = visual.ImageStim(win, lure2_stim, pos=stim_pos[1])
+        target_pres = visual.ImageStim(win, target_stim, pos=stim_pos[2])
+        
+        scene_pres.draw()
+        lure1_pres.draw()
+        lure2_pres.draw()
+        target_pres.draw()
+        win.update()
+        timer.reset()
+        
+        # Record response and give feedback
+        while True:
+            if mouse.isPressedIn(target_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = target_cb
+                break
+            elif mouse.isPressedIn(lure1_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = lure1_cb
+                break
+            elif mouse.isPressedIn(lure2_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = lure2_cb
+                break
+        win.update()
+        win.flip()
+        fix_pres = scene_pres = visual.ImageStim(win, fixation, pos=[0,0])
+        fix_pres.draw()
+        win.update()
+        core.wait(time_fixcr)
+        win.flip()
+        subject_stim.to_csv(save_subj_file_name)
+        count = count + 1
 
 
 
-
+context_binding()
 
 
 
