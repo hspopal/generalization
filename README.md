@@ -1,16 +1,25 @@
 # Generalization Task
 
+## Script descriptions
+* RUN_GENERALIZATION.sh
+    * A bash script that allows you to run the generalization scripts like a program
+    * Make this file executable, place it on your desktop, and double-click to start the generalization "program"
+* init_generalization.py
+    * This script runs the initial gui for the program where you can enter the subject ID, the date, and the block order
+* generalization.py
+    * This script is the meat of the program, where psychopy is used to run the task
+
 ## Directory Structure
 
-GENERALIZATION/
-├── Block_1
-│   ├── characters
-│   ├── encoding
-│   └── individual_items
-├── Block_2
-├── scripts
-└── subject_data
-    └── dev_testing
+GENERALIZATION/ <br>
+├── Block_1 <br>
+│   ├── characters <br>
+│   ├── encoding <br>
+│   └── individual_items <br>
+├── Block_2 <br>
+├── scripts <br>
+└── subject_data <br>
+    └── dev_testing <br>
 
 ### Block_1 and Block_2
 Contains all of the stimuli for each respective block.
