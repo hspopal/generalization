@@ -1,2 +1,4 @@
-./archive
-./__pycache__
+.gitignore
+archive
+__pycache__
+.DS_Store
