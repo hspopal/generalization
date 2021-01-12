@@ -8,6 +8,8 @@
     * This script runs the initial gui for the program where you can enter the subject ID, the date, and the block order
 * generalization.py
     * This script is the meat of the program, where psychopy is used to run the task
+* generalization_v2.py
+    * A modification of the generalization.py script, which randomizes the order of the context being and item recognition/pattern separation sections
 
 ## Directory Structure
 
