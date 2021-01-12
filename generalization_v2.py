@@ -367,8 +367,7 @@ for character in character_list:
 
 ##########################################################################
 ### Context Binding
-def context_binding(self):
-    context_bind_items = []
+def context_binding(subject_stim, count):
     encoding_pres_items = subject_stim[subject_stim['Part']=='encoding']
     
     temp_instr = visual.TextStim(win, instr[16], color='black', pos=[0,0])
@@ -459,10 +458,10 @@ def context_binding(self):
         win.flip()
         subject_stim.to_csv(save_subj_file_name)
         count = count + 1
+    
+    return subject_stim, context_bind_items, count
 
 
-
-context_binding()
 
 
 
@@ -471,199 +470,214 @@ context_binding()
 ##########################################################################
 ### Item Recognition and Pattern Separation
 
-# Item recognition and pattern separation instructions
-for n in range(17,20):
-    temp_instr = visual.TextStim(win, instr[n], color='black', pos=[0,0])
-    temp_instr.draw()
-    win.update()
-    event.waitKeys(keyList=['space'])
-    win.flip()
+def itemrecog_pattsep(subject_stim, count):
+    # Item recognition and pattern separation instructions
+    for n in range(17,20):
+        temp_instr = visual.TextStim(win, instr[n], color='black', pos=[0,0])
+        temp_instr.draw()
+        win.update()
+        event.waitKeys(keyList=['space'])
+        win.flip()
 
-encoding_pres_items = subject_stim[subject_stim['Part']=='encoding']
+    encoding_pres_items = subject_stim[subject_stim['Part']=='encoding']
 
-feedback_correct = 'That’s right.'
-feedback_incorrect = 'Actually, you saw that friend with this object circled in black.'
+    feedback_correct = 'That’s right.'
+    feedback_incorrect = 'Actually, you saw that friend with this object circled in black.'
 
-random.shuffle(character_list)
-for character in character_list:
-    if event.getKeys(['escape']):
-        win.close()
-        core.quit()
-    subject_stim['Scene'].iloc[n].split('_')[0]
-    items_already_pres = subject_stim['Item'].tolist() + subject_stim['Lure_1'].tolist() + subject_stim['Lure_2'].tolist()
-    
-    # Get two random category lures
-    lures_ir = random.sample([x for x in stimulus_key[stimulus_key['Character']==character]['Item'].unique() 
-                           if x not in items_already_pres],2)
-    # Get lure items that were not presented during encoding and set random color
-    lure1_ir = lures_ir[0]
-    lure2_ir = lures_ir[1]
-    target_ir = [x for x in encoding_pres_items[encoding_pres_items['Character']==character]['Item'].tolist() 
-                           if x not in context_bind_items][0]
-    subject_stim.loc[count,'Part'] = 'item_recognition'
-    subject_stim.loc[count,'Character'] = character
-    subject_stim.loc[count,'Item'] = target_ir
-    subject_stim.loc[count,'Lure_1'] = lure1_ir
-    subject_stim.loc[count,'Lure_2'] = lure2_ir
-    
-    
-    # Present stimuli
-    char_stim = Image.open(char_dir+
-                           [i for i in os.listdir(char_dir)
-                           if i.endswith(character+'.png')][0])
-    lure1_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(lure1_ir+'_white.png')][0])
-    lure2_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(lure2_ir+'_white.png')][0])
-    target_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(target_ir+'_white.png')][0])
-    char_stim.thumbnail(item_size, Image.ANTIALIAS)
-    lure1_stim.thumbnail(item_size, Image.ANTIALIAS)
-    lure2_stim.thumbnail(item_size, Image.ANTIALIAS)
-    target_stim.thumbnail(item_size, Image.ANTIALIAS)
-    stim_pos = [[-0.5,-0.6], [0,-0.6], [0.5,-0.6]]
-    random.shuffle(stim_pos)
-    char_pres = visual.ImageStim(win, char_stim, pos=[0,0.5])
-    lure1_pres = visual.ImageStim(win, lure1_stim, pos=stim_pos[0])
-    lure2_pres = visual.ImageStim(win, lure2_stim, pos=stim_pos[1])
-    target_pres = visual.ImageStim(win, target_stim, pos=stim_pos[2])
-    char_pres.draw()
-    lure1_pres.draw()
-    lure2_pres.draw()
-    target_pres.draw()
-    win.update()
-    timer.reset()
-    
-    # Record response and give feedback
-    while True:
-        if mouse.isPressedIn(target_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = target_ir
-            temp_instr = visual.TextStim(win, feedback_correct,
-                                         color='black', pos=[0,0])
-            feedback_circle = visual.Polygon(win, edges=100, radius=0.3, pos=target_pres.pos)
-            feedback_circle.lineColor='black'
-            feedback_circle.lineWidth=7
-            char_pres.draw()
-            lure1_pres.draw()
-            lure2_pres.draw()
-            target_pres.draw()
-            temp_instr.draw()
-            feedback_circle.draw()
-            win.flip()
-            core.wait(time_bind)
-            break
-        elif mouse.isPressedIn(lure1_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = lure1_ir
-            temp_instr = visual.TextStim(win, feedback_incorrect,
-                                         color='black', pos=[0,0])
-            feedback_circle = visual.Polygon(win, edges=100, radius=0.3, pos=target_pres.pos)
-            feedback_circle.lineColor='black'
-            feedback_circle.lineWidth=7
-            char_pres.draw()
-            lure1_pres.draw()
-            lure2_pres.draw()
-            target_pres.draw()
-            temp_instr.draw()
-            feedback_circle.draw()
-            win.flip()
-            core.wait(time_bind)
-            break
-        elif mouse.isPressedIn(lure2_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = lure2_ir
-            temp_instr = visual.TextStim(win, feedback_incorrect,
-                                         color='black', pos=[0,0])
-            feedback_circle = visual.Polygon(win, edges=100, radius=0.3, pos=target_pres.pos)
-            feedback_circle.lineColor='black'
-            feedback_circle.lineWidth=7
-            char_pres.draw()
-            lure1_pres.draw()
-            lure2_pres.draw()
-            target_pres.draw()
-            temp_instr.draw()
-            feedback_circle.draw()
-            win.flip()
-            core.wait(time_bind)
-            break
-    win.update()
-    win.flip()
-    fix_pres = scene_pres = visual.ImageStim(win, fixation, pos=[0,0])
-    fix_pres.draw()
-    win.update()
-    core.wait(time_fixcr)
-    win.flip()
-    subject_stim.to_csv(save_subj_file_name)
-    count = count + 1
-    
-    
-    
-    # Pattern Separation
-    target_ps = encoding_pres_items[encoding_pres_items['Item']==target_ir][['Item','Color']].iloc[0].str.cat(sep='_')
-    lures_ps = random.sample([x for x in stimulus_key[stimulus_key['Item']==target_ir]['Stim'] 
-                           if x not in target_ps],2)
-    lure1_ps = lures_ps[0]
-    lure2_ps = lures_ps[1]
-    subject_stim.loc[count,'Part'] = 'pattern_separation'
-    subject_stim.loc[count,'Character'] = character
-    subject_stim.loc[count,'Item'] = target_ps.rsplit('_',1)[0]
-    subject_stim.loc[count,'Color'] = target_ps.rsplit('_',1)[1]
-    subject_stim.loc[count,'Lure_1'] = lure1_ps
-    subject_stim.loc[count,'Lure_2'] = lure2_ps
-    
-    
-    lure1_ps_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(lure1_ps+'.png')][0])
-    lure2_ps_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(lure2_ps+'.png')][0])
-    target_ps_stim = Image.open(item_dir+character+'/'+ 
-                           [i for i in os.listdir(item_dir+character+'/')
-                           if i.startswith(target_ps+'.png')][0])
-    lure1_ps_stim.thumbnail(item_size, Image.ANTIALIAS)
-    lure2_ps_stim.thumbnail(item_size, Image.ANTIALIAS)
-    target_ps_stim.thumbnail(item_size, Image.ANTIALIAS)
-    stim_pos = [[-0.5,-0.6], [0,-0.6], [0.5,-0.6]]
-    random.shuffle(stim_pos)
-    char_pres = visual.ImageStim(win, char_stim, pos=[0,0.5])
-    lure1_ps_pres = visual.ImageStim(win, lure1_ps_stim, pos=stim_pos[0])
-    lure2_ps_pres = visual.ImageStim(win, lure2_ps_stim, pos=stim_pos[1])
-    target_ps_pres = visual.ImageStim(win, target_ps_stim, pos=stim_pos[2])
-    char_pres.draw()
-    lure1_ps_pres.draw()
-    lure2_ps_pres.draw()
-    target_ps_pres.draw()
-    win.update()
-    timer.reset()
+    random.shuffle(character_list)
+    for character in character_list:
+        if event.getKeys(['escape']):
+            win.close()
+            core.quit()
+        subject_stim['Scene'].iloc[n].split('_')[0]
+        items_already_pres = subject_stim['Item'].tolist() + subject_stim['Lure_1'].tolist() + subject_stim['Lure_2'].tolist()
+        
+        # Get two random category lures
+        lures_ir = random.sample([x for x in stimulus_key[stimulus_key['Character']==character]['Item'].unique() 
+                            if x not in items_already_pres],2)
+        # Get lure items that were not presented during encoding and set random color
+        lure1_ir = lures_ir[0]
+        lure2_ir = lures_ir[1]
+        target_ir = [x for x in encoding_pres_items[encoding_pres_items['Character']==character]['Item'].tolist() 
+                            if x not in context_bind_items][0]
+        subject_stim.loc[count,'Part'] = 'item_recognition'
+        subject_stim.loc[count,'Character'] = character
+        subject_stim.loc[count,'Item'] = target_ir
+        subject_stim.loc[count,'Lure_1'] = lure1_ir
+        subject_stim.loc[count,'Lure_2'] = lure2_ir
+        
+        
+        # Present stimuli
+        char_stim = Image.open(char_dir+
+                            [i for i in os.listdir(char_dir)
+                            if i.endswith(character+'.png')][0])
+        lure1_stim = Image.open(item_dir+character+'/'+ 
+                            [i for i in os.listdir(item_dir+character+'/')
+                            if i.startswith(lure1_ir+'_white.png')][0])
+        lure2_stim = Image.open(item_dir+character+'/'+ 
+                            [i for i in os.listdir(item_dir+character+'/')
+                            if i.startswith(lure2_ir+'_white.png')][0])
+        target_stim = Image.open(item_dir+character+'/'+ 
+                            [i for i in os.listdir(item_dir+character+'/')
+                            if i.startswith(target_ir+'_white.png')][0])
+        char_stim.thumbnail(item_size, Image.ANTIALIAS)
+        lure1_stim.thumbnail(item_size, Image.ANTIALIAS)
+        lure2_stim.thumbnail(item_size, Image.ANTIALIAS)
+        target_stim.thumbnail(item_size, Image.ANTIALIAS)
+        stim_pos = [[-0.5,-0.6], [0,-0.6], [0.5,-0.6]]
+        random.shuffle(stim_pos)
+        char_pres = visual.ImageStim(win, char_stim, pos=[0,0.5])
+        lure1_pres = visual.ImageStim(win, lure1_stim, pos=stim_pos[0])
+        lure2_pres = visual.ImageStim(win, lure2_stim, pos=stim_pos[1])
+        target_pres = visual.ImageStim(win, target_stim, pos=stim_pos[2])
+        char_pres.draw()
+        lure1_pres.draw()
+        lure2_pres.draw()
+        target_pres.draw()
+        win.update()
+        timer.reset()
+        
+        # Record response and give feedback
+        while True:
+            if mouse.isPressedIn(target_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = target_ir
+                temp_instr = visual.TextStim(win, feedback_correct,
+                                            color='black', pos=[0,0])
+                feedback_circle = visual.Polygon(win, edges=100, radius=0.3, pos=target_pres.pos)
+                feedback_circle.lineColor='black'
+                feedback_circle.lineWidth=7
+                char_pres.draw()
+                lure1_pres.draw()
+                lure2_pres.draw()
+                target_pres.draw()
+                temp_instr.draw()
+                feedback_circle.draw()
+                win.flip()
+                core.wait(time_bind)
+                break
+            elif mouse.isPressedIn(lure1_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = lure1_ir
+                temp_instr = visual.TextStim(win, feedback_incorrect,
+                                            color='black', pos=[0,0])
+                feedback_circle = visual.Polygon(win, edges=100, radius=0.3, pos=target_pres.pos)
+                feedback_circle.lineColor='black'
+                feedback_circle.lineWidth=7
+                char_pres.draw()
+                lure1_pres.draw()
+                lure2_pres.draw()
+                target_pres.draw()
+                temp_instr.draw()
+                feedback_circle.draw()
+                win.flip()
+                core.wait(time_bind)
+                break
+            elif mouse.isPressedIn(lure2_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = lure2_ir
+                temp_instr = visual.TextStim(win, feedback_incorrect,
+                                            color='black', pos=[0,0])
+                feedback_circle = visual.Polygon(win, edges=100, radius=0.3, pos=target_pres.pos)
+                feedback_circle.lineColor='black'
+                feedback_circle.lineWidth=7
+                char_pres.draw()
+                lure1_pres.draw()
+                lure2_pres.draw()
+                target_pres.draw()
+                temp_instr.draw()
+                feedback_circle.draw()
+                win.flip()
+                core.wait(time_bind)
+                break
+        win.update()
+        win.flip()
+        fix_pres = scene_pres = visual.ImageStim(win, fixation, pos=[0,0])
+        fix_pres.draw()
+        win.update()
+        core.wait(time_fixcr)
+        win.flip()
+        subject_stim.to_csv(save_subj_file_name)
+        count = count + 1
+        
+        
+        
+        # Pattern Separation
+        target_ps = encoding_pres_items[encoding_pres_items['Item']==target_ir][['Item','Color']].iloc[0].str.cat(sep='_')
+        lures_ps = random.sample([x for x in stimulus_key[stimulus_key['Item']==target_ir]['Stim'] 
+                            if x not in target_ps],2)
+        lure1_ps = lures_ps[0]
+        lure2_ps = lures_ps[1]
+        subject_stim.loc[count,'Part'] = 'pattern_separation'
+        subject_stim.loc[count,'Character'] = character
+        subject_stim.loc[count,'Item'] = target_ps.rsplit('_',1)[0]
+        subject_stim.loc[count,'Color'] = target_ps.rsplit('_',1)[1]
+        subject_stim.loc[count,'Lure_1'] = lure1_ps
+        subject_stim.loc[count,'Lure_2'] = lure2_ps
+        
+        
+        lure1_ps_stim = Image.open(item_dir+character+'/'+ 
+                            [i for i in os.listdir(item_dir+character+'/')
+                            if i.startswith(lure1_ps+'.png')][0])
+        lure2_ps_stim = Image.open(item_dir+character+'/'+ 
+                            [i for i in os.listdir(item_dir+character+'/')
+                            if i.startswith(lure2_ps+'.png')][0])
+        target_ps_stim = Image.open(item_dir+character+'/'+ 
+                            [i for i in os.listdir(item_dir+character+'/')
+                            if i.startswith(target_ps+'.png')][0])
+        lure1_ps_stim.thumbnail(item_size, Image.ANTIALIAS)
+        lure2_ps_stim.thumbnail(item_size, Image.ANTIALIAS)
+        target_ps_stim.thumbnail(item_size, Image.ANTIALIAS)
+        stim_pos = [[-0.5,-0.6], [0,-0.6], [0.5,-0.6]]
+        random.shuffle(stim_pos)
+        char_pres = visual.ImageStim(win, char_stim, pos=[0,0.5])
+        lure1_ps_pres = visual.ImageStim(win, lure1_ps_stim, pos=stim_pos[0])
+        lure2_ps_pres = visual.ImageStim(win, lure2_ps_stim, pos=stim_pos[1])
+        target_ps_pres = visual.ImageStim(win, target_ps_stim, pos=stim_pos[2])
+        char_pres.draw()
+        lure1_ps_pres.draw()
+        lure2_ps_pres.draw()
+        target_ps_pres.draw()
+        win.update()
+        timer.reset()
+        
+
+        while True:
+            if mouse.isPressedIn(target_ps_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = target_ps
+                break
+            elif mouse.isPressedIn(lure1_ps_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = lure1_ps
+                break
+            elif mouse.isPressedIn(lure2_ps_pres):
+                subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
+                subject_stim.loc[count,'Answer'] = lure2_ps
+                break
+        win.update()
+        win.flip()
+        count = count + 1
+        fix_pres = scene_pres = visual.ImageStim(win, fixation, pos=[0,0])
+        fix_pres.draw()
+        win.update()
+        core.wait(time_fixcr)
+        win.flip()
+        subject_stim.to_csv(save_subj_file_name)
+    return subject_stim, count
     
 
-    while True:
-        if mouse.isPressedIn(target_ps_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = target_ps
-            break
-        elif mouse.isPressedIn(lure1_ps_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = lure1_ps
-            break
-        elif mouse.isPressedIn(lure2_ps_pres):
-            subject_stim.loc[count,'Reaction_Time'] = timer.getTime()
-            subject_stim.loc[count,'Answer'] = lure2_ps
-            break
-    win.update()
-    win.flip()
-    count = count + 1
-    fix_pres = scene_pres = visual.ImageStim(win, fixation, pos=[0,0])
-    fix_pres.draw()
-    win.update()
-    core.wait(time_fixcr)
-    win.flip()
-    subject_stim.to_csv(save_subj_file_name)
+
+# Randomize order of context binding and item recognition/pattern separation sections
+context_bind_items = []
+
+rand_int = random.choice([0,1])
+if rand_int == 0:
+    subject_stim, context_bind_items, count = context_binding(subject_stim, count)
+    subject_stim, count = itemrecog_pattsep(subject_stim, count)
+elif rand_int == 1:
+    subject_stim, count = itemrecog_pattsep(subject_stim, count)
+    subject_stim, context_bind_items, count = context_binding(subject_stim, count)
     
 
 
@@ -701,20 +715,7 @@ if os.path.exists(data_dir+'all_data.csv'):
 else:
     scored_answers.to_csv(data_dir+'all_data.csv', mode='a', 
                           index=False)
-"""if beta == 0:
-    if os.path.exists(data_dir+'all_data.csv'):
-        scored_answers.to_csv(data_dir+'all_data.csv', mode='a', 
-                              header=False, index=False)
-    else:
-        scored_answers.to_csv(data_dir+'all_data.csv', mode='a', 
-                              index=False)
-elif beta == 1:
-    if os.path.exists(data_dir+'all_data.csv'):
-        scored_answers.to_csv(data_dir+'all_data.csv', mode='a', 
-                              header=False, index=False)
-    else:
-        scored_answers.to_csv(data_dir+'all_data.csv', mode='a', 
-                              index=False)"""
+
 
 
 
