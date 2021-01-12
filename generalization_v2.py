@@ -367,7 +367,7 @@ for character in character_list:
 
 ##########################################################################
 ### Context Binding
-def context_binding(subject_stim, count):
+def context_binding(subject_stim, context_bind_items, count):
     encoding_pres_items = subject_stim[subject_stim['Part']=='encoding']
     
     temp_instr = visual.TextStim(win, instr[16], color='black', pos=[0,0])
@@ -470,7 +470,7 @@ def context_binding(subject_stim, count):
 ##########################################################################
 ### Item Recognition and Pattern Separation
 
-def itemrecog_pattsep(subject_stim, count):
+def itemrecog_pattsep(subject_stim, context_bind_items, count):
     # Item recognition and pattern separation instructions
     for n in range(17,20):
         temp_instr = visual.TextStim(win, instr[n], color='black', pos=[0,0])
@@ -668,20 +668,27 @@ def itemrecog_pattsep(subject_stim, count):
     
 
 
+
+
+##########################################################################
 # Randomize order of context binding and item recognition/pattern separation sections
 context_bind_items = []
 
 rand_int = random.choice([0,1])
+print(rand_int)
 if rand_int == 0:
-    subject_stim, context_bind_items, count = context_binding(subject_stim, count)
-    subject_stim, count = itemrecog_pattsep(subject_stim, count)
+    subject_stim, context_bind_items, count = context_binding(subject_stim, context_bind_items, 
+                                                              count)
+    subject_stim, count = itemrecog_pattsep(subject_stim, context_bind_items, count)
 elif rand_int == 1:
-    subject_stim, count = itemrecog_pattsep(subject_stim, count)
-    subject_stim, context_bind_items, count = context_binding(subject_stim, count)
+    subject_stim, count = itemrecog_pattsep(subject_stim, context_bind_items, count)
+    subject_stim, context_bind_items, count = context_binding(subject_stim, context_bind_items, 
+                                                              count)
     
 
 
 
+##########################################################################
 # Score and save responses for individual subject
 ir_ps_Acc = 0
 for n in range(len(subject_stim)):
