@@ -1,4 +1,5 @@
 # Generalization Task
+This task was created for the study in [Ngo et al., 2021, "Contingency of semantic generalization on episodic specificity varies across development"](https://www.sciencedirect.com/science/article/pii/S0960982221004619). Zoe Ngo created the task and the stimuli and Haroon Popal coded it in [psychopy](https://www.psychopy.org/) using python.
 
 ## Script descriptions
 * RUN_GENERALIZATION.sh
